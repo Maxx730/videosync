@@ -5,7 +5,7 @@ const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://videosync-client.herokuapp.com/',
+    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://videosync-client-kw3it.ondigitalocean.app/',
     methods: ["GET", "POST"]
   }
 });

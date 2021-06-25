@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/Maxx730/videosync/issues"
   },
-  "homepage": "https://github.com/Maxx730/videosync#readme"
+  "homepage": "https://github.com/Maxx730/videosync#readme",
+  "dependencies": {
+    "cor": "0.0.0",
+    "express": "^4.17.1"
+  }
 }

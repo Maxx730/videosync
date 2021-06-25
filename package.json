@@ -19,6 +19,7 @@
   "homepage": "https://github.com/Maxx730/videosync#readme",
   "dependencies": {
     "cor": "0.0.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "socket.io": "^4.1.2"
   }
 }

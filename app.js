@@ -20,7 +20,7 @@ io.on('connection', (socket) => {
         if (user.nickname === socket.data.nickname) {
           const index = users.indexOf(user);
           users.splice(index, 1);
-          io.emit('users_updated', users);
+          io.emit('users_updated', {users: users, videos: videos});
         } 
       });
     });

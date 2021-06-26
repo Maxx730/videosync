@@ -3,6 +3,7 @@ const { debug } = require('console');
 const express = require('express');
 const app = express();
 const http = require('http');
+const { emit } = require('process');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -13,6 +14,9 @@ const io = require("socket.io")(server, {
 
 let users = new Array();
 let videos = new Array();
+
+let playing = false;
+let currentTime = 0;
 
 io.on('connection', (socket) => {
     socket.on('disconnect', () => {
@@ -44,6 +48,13 @@ io.on('connection', (socket) => {
     socket.on('remove_video', removed => {
       videos = videos.filter(video => video.id !== removed.id)
       io.emit('videos_updated', videos);
+    });
+
+    socket.on('playing', status => {
+      playing = status.playing;
+      currentTime = status.current;
+      io.emit('start_player', playing);
+      io.emit('set_player_time', currentTime);
     });
 });
 

@@ -70,7 +70,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('next_video', () => {
+      if(videos.length > 1) {
+        videos.shift();
+      } else {
+        currentVideo = videos[0];
+        videos.shift();
+        io.emit('set_video', currentVideo);
+      }
 
+      io.emit('videos_updated', videos);
     });
 });
 

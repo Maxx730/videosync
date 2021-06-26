@@ -47,7 +47,12 @@ io.on('connection', (socket) => {
         io.emit('videos_updated', videos);
       } else {
         io.emit('set_video', video);
-        io.emit('playing', true);
+
+        setTimeout(() => {
+          console.log('SENDING PLAY COMMAND');
+          io.emit('start_player', true);
+        },1000);
+
         currentVideo = video;
       }
     });

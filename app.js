@@ -17,6 +17,7 @@ let videos = new Array();
 
 let playing = false;
 let currentTime = 0;
+let currentVideo =  null;
 
 io.on('connection', (socket) => {
     socket.on('disconnect', () => {
@@ -41,8 +42,14 @@ io.on('connection', (socket) => {
     })
 
     socket.on('add_video', video => {
-      videos.push(video);
-      io.emit('videos_updated', videos);
+      if (videos.length > 0 || currentVideo) {
+        videos.push(video);
+        io.emit('videos_updated', videos);
+      } else {
+        io.emit('set_video', video);
+        io.emit('playing', true);
+        currentVideo = video;
+      }
     });
 
     socket.on('remove_video', removed => {
@@ -55,6 +62,10 @@ io.on('connection', (socket) => {
       currentTime = status.current;
       io.emit('start_player', playing);
       io.emit('set_player_time', currentTime);
+    });
+
+    socket.on('next_video', () => {
+
     });
 });
 

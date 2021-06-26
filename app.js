@@ -11,8 +11,8 @@ const io = require("socket.io")(server, {
   }
 });
 
-const users = new Array();
-const videos = new Array();
+let users = new Array();
+let videos = new Array();
 
 io.on('connection', (socket) => {
     socket.on('disconnect', () => {
@@ -38,6 +38,11 @@ io.on('connection', (socket) => {
 
     socket.on('add_video', video => {
       videos.push(video);
+      io.emit('videos_updated', videos);
+    });
+
+    socket.on('remove_video', removed => {
+      videos = videos.filter(video => video.id !== removed.id)
       io.emit('videos_updated', videos);
     });
 });

@@ -32,9 +32,14 @@ io.on('connection', (socket) => {
           nickname: nickname
         });
         socket.data = {nickname: nickname};
-        io.emit('users_updated', users);
+        io.emit('users_updated', {users:users, videos:videos});
       }  
     })
+
+    socket.on('add_video', video => {
+      videos.push(video);
+      io.emit('videos_updated', videos);
+    });
 });
 
 server.listen(port, () => {

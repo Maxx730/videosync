@@ -38,11 +38,14 @@ io.on('connection', (socket) => {
         });
         socket.data = {nickname: nickname};
         io.emit('users_updated', {users:users, videos:videos});
+        if (currentVideo) {
+          io.emit('set_video', currentVideo);
+        }
       }  
     })
 
     socket.on('add_video', video => {
-      if (videos.length > 0 || currentVideo) {
+      if (currentVideo) {
         videos.push(video);
         io.emit('videos_updated', videos);
       } else {

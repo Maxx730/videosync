@@ -30,6 +30,10 @@ io.on('connection', (socket) => {
       });
     });
 
+    socket.on('add_reaction', reaction => {
+      io.emit('show_reaction', reaction);
+    });
+
     socket.on('user_login', nickname => {
       if (!users.filter(user => user.nickname === nickname).length) {
         console.log(nickname + ' Connected!');

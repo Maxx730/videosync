@@ -30,6 +30,10 @@ io.on('connection', (socket) => {
       });
     });
 
+    socket.on('notify', payload => {
+      io.emit('notify', payload);
+    });
+
     socket.on('add_reaction', reaction => {
       io.emit('show_reaction', reaction);
     });
@@ -79,19 +83,20 @@ io.on('connection', (socket) => {
     socket.on('next_video', () => {
       if(videos.length > 1) {
         videos.shift();
+        io.emit('videos_updated', videos);
       } else {
         currentVideo = videos[0];
         videos.shift();
         io.emit('set_video', currentVideo);
+        io.emit('videos_updated', videos);
       }
-
-      io.emit('videos_updated', videos);
     });
 
     socket.on('update_nickname', payload => {
       for (let i = 0;i < users.length;i++) {
         if (users[i].nickname === payload.old) {
           users[i].nickname = payload.new;
+          socket.data.nickname = payload.new
           io.emit('users_updated', {users:users, videos: videos});
         } 
       }

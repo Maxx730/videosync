@@ -87,6 +87,15 @@ io.on('connection', (socket) => {
 
       io.emit('videos_updated', videos);
     });
+
+    socket.on('update_nickname', payload => {
+      for (let i = 0;i < users.length;i++) {
+        if (users[i].nickname === payload.old) {
+          users[i].nickname = payload.new;
+          io.emit('users_updated', {users:users, videos: videos});
+        } 
+      }
+    });
 });
 
 server.listen(port, () => {

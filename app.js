@@ -86,7 +86,8 @@ io.on('connection', (socket) => {
 
     socket.on('next_video', () => {
       const curDate = new Date();
-      if (lastVideoChange === null || (lastVideoChange.getTime() - curDate.getTime()) / 1000 > NEXT_THRESHOLD) {
+
+      if (lastVideoChange === null || Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
         if (videos.length > 0) {
           const vid = videos[0];
           history.push(vid);

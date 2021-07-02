@@ -14,10 +14,14 @@ const io = require("socket.io")(server, {
 
 let users = new Array();
 let videos = new Array();
+let history = new Array();
 
 let playing = false;
 let currentTime = 0;
 let currentVideo =  null;
+let lastVideoChange = null;
+
+const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
 io.on('connection', (socket) => {
     socket.on('disconnect', () => {
@@ -81,14 +85,26 @@ io.on('connection', (socket) => {
     });
 
     socket.on('next_video', () => {
-      if(videos.length > 1) {
-        videos.shift();
-        io.emit('videos_updated', videos);
-      } else {
-        currentVideo = videos[0];
-        videos.shift();
-        io.emit('set_video', currentVideo);
-        io.emit('videos_updated', videos);
+      const curDate = new Date();
+
+      if (lastVideoChange === null || Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
+        if (videos.length > 0) {
+          const vid = videos[0];
+          history.push(vid);
+          io.emit('history_updated', history);
+        }
+  
+        if(videos.length > 1) {
+          videos.shift();
+          io.emit('videos_updated', videos);
+        } else {
+          currentVideo = videos[0];
+          videos.shift();
+          io.emit('set_video', currentVideo);
+          io.emit('videos_updated', videos);
+        }
+
+        lastVideoChange = new Date();
       }
     });
 

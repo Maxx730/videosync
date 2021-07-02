@@ -101,6 +101,10 @@ io.on('connection', (socket) => {
         } 
       }
     });
+
+    socket.on('change_player_time', value => {
+      io.emit('changing_player_time', value);
+    });
 });
 
 server.listen(port, () => {

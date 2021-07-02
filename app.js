@@ -64,7 +64,6 @@ io.on('connection', (socket) => {
         io.emit('set_video', video);
 
         setTimeout(() => {
-          console.log('SENDING PLAY COMMAND');
           io.emit('start_player', true);
         },1000);
 
@@ -87,22 +86,16 @@ io.on('connection', (socket) => {
     socket.on('next_video', () => {
       const curDate = new Date();
 
-      if (lastVideoChange === null || Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
-        if (videos.length > 0) {
-          const vid = videos[0];
-          history.push(vid);
-          io.emit('history_updated', history);
-        }
-  
-        if(videos.length > 1) {
-          videos.shift();
-          io.emit('videos_updated', videos);
-        } else {
-          currentVideo = videos[0];
+      if (lastVideoChange === null || Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {  
+        if(videos.length > 0) {
+          currentVideo = JSON.parse(JSON.stringify(videos[0]));
+          history.push(currentVideo);
           videos.shift();
           io.emit('set_video', currentVideo);
-          io.emit('videos_updated', videos);
         }
+
+        io.emit('videos_updated', videos);
+        io.emit('history_updated', history);
 
         lastVideoChange = new Date();
       }

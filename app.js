@@ -19,7 +19,7 @@ let history = new Array();
 let playing = false;
 let currentTime = 0;
 let currentVideo =  null;
-let lastVideoChange = null;
+let lastVideoChange = new Date();
 
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
@@ -86,7 +86,9 @@ io.on('connection', (socket) => {
     socket.on('next_video', () => {
       const curDate = new Date();
 
-      if (lastVideoChange === null || Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {  
+      if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) 
+      {
+        console.log( Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000));  
         if(videos.length > 0) {
           currentVideo = JSON.parse(JSON.stringify(videos[0]));
           history.push(currentVideo);
@@ -96,9 +98,10 @@ io.on('connection', (socket) => {
 
         io.emit('videos_updated', videos);
         io.emit('history_updated', history);
-
-        lastVideoChange = new Date();
       }
+
+      
+      lastVideoChange = new Date();
     });
 
     socket.on('update_nickname', payload => {

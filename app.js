@@ -87,13 +87,14 @@ io.on('connection', (socket) => {
       const curDate = new Date();
 
       if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) 
-      {
-        console.log( Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000));  
+      { 
         if(videos.length > 0) {
           currentVideo = JSON.parse(JSON.stringify(videos[0]));
           history.push(currentVideo);
           videos.shift();
           io.emit('set_video', currentVideo);
+        } else {
+          io.emit('set_video', null);
         }
 
         io.emit('videos_updated', videos);

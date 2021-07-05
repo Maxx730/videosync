@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
         if (user.nickname === socket.data.nickname) {
           const index = users.indexOf(user);
           users.splice(index, 1);
-          io.emit('users_updated', {users: users, videos: videos});
+          io.emit('users_updated', {users: users, videos: videos, video: currentVideo});
         } 
       });
     });
@@ -49,10 +49,7 @@ io.on('connection', (socket) => {
           nickname: nickname
         });
         socket.data = {nickname: nickname};
-        io.emit('users_updated', {users:users, videos:videos});
-        if (currentVideo) {
-          io.emit('set_video', currentVideo);
-        }
+        updateState(io, 'joined');
       }  
     })
 
@@ -69,6 +66,8 @@ io.on('connection', (socket) => {
 
         currentVideo = video;
       }
+
+      updateState(io, 'add');
     });
 
     socket.on('remove_video', removed => {
@@ -88,12 +87,13 @@ io.on('connection', (socket) => {
 
       if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) 
       { 
-        if(videos.length > 1) {
-          videos.shift();
-        } else {
-          currentVideo = videos[0];
+        if(videos.length > 0) {
+          currentVideo = JSON.parse(JSON.stringify(videos[0]));
+          history.push(currentVideo);
           videos.shift();
           io.emit('set_video', currentVideo);
+        } else {
+          io.emit('set_video', null);
         }
 
         io.emit('videos_updated', videos);
@@ -122,3 +122,13 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log(`Video Sync Core listening on port:` + port);
 });
+
+function updateState(io, action) {
+  io.emit('state_updated', {
+    users: users,
+    videos: videos,
+    video: currentVideo,
+    history: history,
+    action: action
+  });
+}

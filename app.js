@@ -128,6 +128,7 @@ function updateState(io, action) {
     users: users,
     videos: videos,
     video: currentVideo,
+    history: history,
     action: action
   });
 }

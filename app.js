@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
         if (user.nickname === socket.data.nickname) {
           const index = users.indexOf(user);
           users.splice(index, 1);
-          updateState(io, socket, 'disconnected');
+          updateState(io, socket, 'disconnect');
         } 
       });
     });
@@ -113,6 +113,14 @@ io.on('connection', (socket) => {
 
     socket.on('change_player_time', value => {
       io.emit('changing_player_time', value);
+    });
+
+    socket.on('request_current_time', () => {
+      io.emit('request_current_time');
+    });
+
+    socket.on('receive_current_time', time => {
+      io.emit('changing_player_time', time);
     });
 });
 

@@ -106,7 +106,7 @@ io.on('connection', (socket) => {
         if (users[i].nickname === payload.old) {
           users[i].nickname = payload.new;
           socket.data.nickname = payload.new
-          io.emit('users_updated', {users:users, videos: videos});
+          updateState(io, socket, 'name_update');
         } 
       }
     });

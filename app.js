@@ -20,6 +20,7 @@ let playing = false;
 let currentTime = 0;
 let currentVideo =  null;
 let lastVideoChange = new Date();
+let banner = 'Now With Chiken';
 
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
@@ -43,6 +44,12 @@ io.on('connection', (socket) => {
         socket.data = {nickname: nickname};
         updateState(io, socket, 'joined');
       }  
+    });
+
+    socket.on('set_banner', value => {
+      console.log(value);
+      banner = value;
+      updateState(io, socket, 'banner');
     })
 
     socket.on('add_video', video => {
@@ -135,6 +142,7 @@ function updateState(io, socket, action) {
     videos: videos,
     video: currentVideo,
     history: history,
-    action: action
+    action: action,
+    banner: banner
   });
 }

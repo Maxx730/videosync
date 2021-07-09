@@ -47,7 +47,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('set_banner', value => {
-      console.log(value);
       banner = value;
       updateState(io, socket, 'banner');
     })
@@ -84,7 +83,7 @@ io.on('connection', (socket) => {
     socket.on('next_video', payload => {
       const curDate = new Date();
 
-      if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) 
+      if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD * users.length) 
       { 
         if(videos.length > 0) {
           currentVideo = JSON.parse(JSON.stringify(videos[0]));

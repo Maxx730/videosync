@@ -7,11 +7,11 @@ const { emit } = require('process');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
-    transports: ['websocket'],
-    pinkInterval: 1000,
     origin: '*',
     methods: ["GET", "POST"]
-  }
+  },
+  transports: ['websocket'],
+  pinkInterval: 1000,
 });
 
 let users = new Array();

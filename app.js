@@ -7,6 +7,8 @@ const { emit } = require('process');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
+    pingInterval: 1000,
+    transports: ['websocket'],
     origin: '*',
     methods: ["GET", "POST"]
   }

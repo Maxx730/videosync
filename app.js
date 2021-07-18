@@ -11,7 +11,7 @@ const io = require("socket.io")(server, {
     methods: ["GET", "POST"]
   },
   transports: ['websocket'],
-  pinkInterval: 1000,
+  pingInterval: 1000,
 });
 
 let users = new Array();

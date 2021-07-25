@@ -117,6 +117,7 @@ server.listen(port, () => {
 });
 
 function updateState(io, socket, action) {
+  const date = new Date();
   io.emit('state_updated', {
     playing: playing,
     users: users,
@@ -126,6 +127,12 @@ function updateState(io, socket, action) {
     history: history,
     action: action,
     banner: banner,
-    status: status
+    status: status,
+    lastUpdate: "Last Sync: " + date.getDate() + "/"
+    + (date.getMonth()+1)  + "/" 
+    + date.getFullYear() + " @ "  
+    + date.getHours() + ":"  
+    + date.getMinutes() + ":" 
+    + date.getSeconds()
   });
 }

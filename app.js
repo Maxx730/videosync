@@ -13,6 +13,7 @@ const io = require("socket.io")(server, {
   transports: ['websocket'],
   pingInterval: 1000,
 });
+const AUTOSTART_TIME = 1000;
 
 let users = new Array();
 let videos = new Array();
@@ -23,6 +24,8 @@ let currentTime = 0;
 let currentVideo =  null;
 let lastVideoChange = new Date();
 let banner = 'Now With Chiken';
+let status = 'idle';
+let videoTimer = null;
 
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
@@ -63,7 +66,8 @@ io.on('connection', (socket) => {
 
         setTimeout(() => {
           io.emit('start_player', true);
-        },1000);
+          status = 'playing';
+        }, AUTOSTART_TIME);
 
         currentVideo = video;
         updateState(io, socket, 'start');
@@ -144,6 +148,15 @@ function updateState(io, socket, action) {
     video: currentVideo,
     history: history,
     action: action,
-    banner: banner
+    banner: banner,
+    status: status
   });
+}
+
+function startSyncTimer(videoLength) {
+  videoTimer = setInterval(videoTick, 1000);
+}
+
+function videoTick() {
+
 }

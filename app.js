@@ -1,9 +1,7 @@
 const port = process.env.PORT || 4000;
-const { debug } = require('console');
 const express = require('express');
 const app = express();
 const http = require('http');
-const { emit } = require('process');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   cors: {
@@ -40,7 +38,7 @@ io.on('connection', (socket) => {
       });
     });
 
-    socket.on('user_login', nickname => {
+    socket.on('user_joined', nickname => {
       if (!users.filter(user => user.nickname === nickname).length) {
         console.log(nickname + ' Connected!');
         users.push({
@@ -51,39 +49,25 @@ io.on('connection', (socket) => {
       }  
     });
 
-    socket.on('set_banner', value => {
-      banner = value;
-      updateState(io, socket, 'banner');
-    })
-
     socket.on('add_video', video => {
       if (currentVideo) {
         videos.push(video);
-        io.emit('videos_updated', videos);
-        updateState(io, socket, 'add');
+        updateState(io, socket, 'add_video');
       } else {
-        io.emit('set_video', video);
-
-        setTimeout(() => {
-          io.emit('start_player', true);
-          status = 'playing';
-        }, AUTOSTART_TIME);
-
         currentVideo = video;
-        updateState(io, socket, 'start');
+        updateState(io, socket, 'start_video');
       }
     });
 
     socket.on('remove_video', removed => {
       videos = videos.filter(video => video.id !== removed.id)
-      io.emit('videos_updated', videos);
+      //Remove the video from the playlist and then update state
     });
 
-    socket.on('playing', status => {
-      playing = status.playing;
-      currentTime = status.current;
-      io.emit('start_player', playing);
-      io.emit('set_player_time', currentTime);
+    socket.on('play_pause', payload => {
+      playing = payload.playing;
+      status = payload.playing ? 'Playing' : 'Paused';
+      updateState(io, socket, 'play_pause');
     });
 
     socket.on('next_video', payload => {
@@ -122,18 +106,6 @@ io.on('connection', (socket) => {
         } 
       }
     });
-
-    socket.on('change_player_time', value => {
-      io.emit('changing_player_time', value);
-    });
-
-    socket.on('request_current_time', () => {
-      io.emit('request_current_time');
-    });
-
-    socket.on('receive_current_time', time => {
-      io.emit('changing_player_time', time);
-    });
 });
 
 server.listen(port, () => {
@@ -142,6 +114,7 @@ server.listen(port, () => {
 
 function updateState(io, socket, action) {
   io.emit('state_updated', {
+    playing: playing,
     users: users,
     user: socket.data ? socket.data.nickname : '',
     videos: videos,
@@ -151,12 +124,4 @@ function updateState(io, socket, action) {
     banner: banner,
     status: status
   });
-}
-
-function startSyncTimer(videoLength) {
-  videoTimer = setInterval(videoTick, 1000);
-}
-
-function videoTick() {
-
 }

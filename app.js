@@ -28,6 +28,7 @@ let videoTimer = null;
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
 io.on('connection', (socket) => {
+
     socket.on('disconnect', () => {
       users.forEach(user => {
         if (user.nickname === socket.data.nickname) {
@@ -46,6 +47,12 @@ io.on('connection', (socket) => {
         });
         socket.data = {nickname: nickname};
         updateState(io, socket, 'joined');
+
+        //Start a ping to keep connections alive
+        setInterval(function() {
+          console.log('--- Updating State --- ');
+          updateState(io, socket, 'sync');
+        }, 1000);
       }  
     });
 

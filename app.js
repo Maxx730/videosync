@@ -23,7 +23,7 @@ let currentVideo =  null;
 let lastVideoChange = new Date();
 let banner = 'Now With Chiken';
 let status = 'idle';
-let videoTimer = null;
+let syncInterval = null;
 
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
@@ -47,12 +47,6 @@ io.on('connection', (socket) => {
         });
         socket.data = {nickname: nickname};
         updateState(io, socket, 'joined');
-
-        //Start a ping to keep connections alive
-        setInterval(function() {
-          console.log('--- Updating State --- ');
-          updateState(io, socket, 'sync');
-        }, 5000);
       }  
     });
 
@@ -72,6 +66,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('play_pause', payload => {
+      console.log('play pause');
       playing = payload.playing;
       status = payload.playing ? 'Playing' : 'Paused';
       updateState(io, socket, 'play_pause');
@@ -114,8 +109,8 @@ io.on('connection', (socket) => {
       }
     });
 
-    socket.on('keep_alive', user => {
-      console.log(`Ping from ${user} at ${new Date()}`);
+    socket.on('sync', user => {
+      updateState(io, socket, 'sync')
     });
 });
 

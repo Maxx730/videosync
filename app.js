@@ -52,7 +52,7 @@ io.on('connection', (socket) => {
         setInterval(function() {
           console.log('--- Updating State --- ');
           updateState(io, socket, 'sync');
-        }, 1000);
+        }, 5000);
       }  
     });
 

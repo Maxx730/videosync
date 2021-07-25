@@ -106,6 +106,10 @@ io.on('connection', (socket) => {
         } 
       }
     });
+
+    socket.on('keep_alive', user => {
+      console.log(`Ping from ${user} at ${new Date()}`);
+    });
 });
 
 server.listen(port, () => {

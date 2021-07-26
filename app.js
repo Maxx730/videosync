@@ -135,6 +135,6 @@ function updateState(io, socket, action) {
     + date.getFullYear() + " @ "  
     + date.getHours() + ":"  
     + date.getMinutes() + ":" 
-    + date.getSeconds()
+    + (date.getSeconds() > 9 ? date.getSeconds() : '0' + date.getSeconds())
   });
 }

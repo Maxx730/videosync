@@ -1,4 +1,4 @@
-const port = process.env.PORT || 4000;
+const port = 80;
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -69,7 +69,6 @@ io.on('connection', (socket) => {
 
     socket.on('next_video', payload => {
       const curDate = new Date();
-      console.log('working');
 
       if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD * users.length) 
       { 

@@ -4,12 +4,8 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
-  cors: {
-    origin: '*',
-    methods: ["GET", "POST"]
-  },
   transports: ['websocket'],
-  pingInterval: 1000,
+  pingInterval: 100
 });
 const AUTOSTART_TIME = 1000;
 
@@ -66,7 +62,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('play_pause', payload => {
-      console.log('play pause');
       playing = payload.playing;
       status = payload.playing ? 'Playing' : 'Paused';
       updateState(io, socket, 'play_pause');
@@ -74,6 +69,7 @@ io.on('connection', (socket) => {
 
     socket.on('next_video', payload => {
       const curDate = new Date();
+      console.log('working');
 
       if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD * users.length) 
       { 
@@ -86,15 +82,8 @@ io.on('connection', (socket) => {
           currentVideo = null;
         }
 
-        if (payload.user) {
-          socket.data = {
-            nickname: payload.user
-          }
-        }
-
         updateState(io, socket, 'skip');
       }
-
       
       lastVideoChange = new Date();
     });
@@ -111,6 +100,14 @@ io.on('connection', (socket) => {
 
     socket.on('sync', user => {
       updateState(io, socket, 'sync')
+    });
+
+    socket.on('move_up', video => {
+
+    });
+
+    socket.on('move_down', video => {
+
     });
 });
 

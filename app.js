@@ -24,7 +24,7 @@ let syncInterval = null;
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
 io.on('connection', (socket) => {
-
+    console.log('--- Connection Established ----');
     socket.on('disconnect', () => {
       users.forEach(user => {
         if (user.nickname === socket.data.nickname) {

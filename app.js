@@ -99,6 +99,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sync', user => {
+      console.log('--- App Syncing ---');
       updateState(io, socket, 'sync')
     });
 

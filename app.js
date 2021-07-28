@@ -75,11 +75,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('next_video',async payload => {
-        await skipVideo().then(action => {
-            updateState(io, socket, action, {user: payload.user});
-        }).catch(err => {
-            console.log(err);
-        });
+        const curDate = new Date();
+        if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
+            await skipVideo().then(action => {
+                updateState(io, socket, action, {user: payload.user});
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+        lastVideoChange = new Date();
     });
 
     socket.on('update_nickname', payload => {
@@ -97,9 +101,9 @@ io.on('connection', (socket) => {
       updateState(io, socket, 'sync');
     });
     
-    socket.on('change_player_time', time => {
-        currentTime = time;
-        updateState(io, socket, 'change_player_time');
+    socket.on('change_player_time', payload => {
+        currentTime = payload.time;
+        updateState(io, socket, 'change_player_time', {user: payload.user});
     });
 
     socket.on('move_up', video => {

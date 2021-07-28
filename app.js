@@ -22,7 +22,7 @@ let syncInterval = null;
 
 const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 
-io.on('connection', (socket) => {
+io.once('connection', (socket) => {
     console.log('--- Connection Established ----');
     socket.on('disconnect', () => {
       users.forEach(user => {
@@ -32,6 +32,7 @@ io.on('connection', (socket) => {
           updateState(io, socket, 'disconnect');
         } 
       });
+      socket.removeAllListeners();
     });
 
     socket.on('user_joined', nickname => {

@@ -94,7 +94,12 @@ io.on('connection', (socket) => {
 
     socket.on('sync', user => {
       console.log('--- App Syncing ---');
-      updateState(io, socket, 'sync')
+      updateState(io, socket, 'sync');
+    });
+    
+    socket.on('change_player_time', time => {
+        currentTime = time;
+        updateState(io, socket, 'change_player_time');
     });
 
     socket.on('move_up', video => {
@@ -128,6 +133,7 @@ function updateState(io, socket, action, extra) {
     action: action,
     banner: banner,
     status: status,
+    currentTime: currentTime,
     extra: extra != null ? extra : {},
     lastUpdate: "Last Sync: " + date.getDate() + "/"
     + (date.getMonth()+1)  + "/" 

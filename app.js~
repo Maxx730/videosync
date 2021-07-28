@@ -58,9 +58,7 @@ io.on('connection', (socket) => {
     
     socket.on('move_video', payload => {
         const vId = util.findVideo(payload.video, videos);
-        if (vId != null) {
-            console.log(vId);
-        }
+        console.log(payload);
     });
 
     socket.on('remove_video', removed => {
@@ -153,8 +151,7 @@ async function joinRoom(nickname, users) {
 
 async function addVideo(video) {
     return new Promise((resolve, reject) => {
-        const exists = util.videoExists(video, videos);
-        if (video != null && !exists) {
+        if (video != null) {
             if (currentVideo) {
                 videos.push(video);
                 resolve('add_video');
@@ -163,9 +160,7 @@ async function addVideo(video) {
                 resolve('start_video');
             }
         } else {
-            if (exists) {
-                resolve('video_exists');
-            }
+            reject('Request video is null.');
         }
     });
 }

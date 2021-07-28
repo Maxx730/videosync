@@ -25,6 +25,7 @@ const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
 io.once('connection', (socket) => {
     console.log('--- Connection Established ----');
     socket.on('disconnect', () => {
+      console.log('--- Socket Disconnection ---');
       users.forEach(user => {
         if (user.nickname === socket.data.nickname) {
           const index = users.indexOf(user);

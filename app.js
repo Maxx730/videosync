@@ -21,7 +21,7 @@ let banner = 'Now With Chiken';
 let status = 'idle';
 let syncInterval = null;
 
-const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
+const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3000;
 
 io.on('connection', (socket) => {
     console.log('--- Connection Established ----');
@@ -57,10 +57,7 @@ io.on('connection', (socket) => {
     });
     
     socket.on('move_video', payload => {
-        const vId = util.findVideo(payload.video, videos);
-        if (vId != null) {
-            console.log(vId);
-        }
+        console.log(moveVideo(payload.video, videos, payload.video.direction == 'down'));
     });
 
     socket.on('remove_video', removed => {
@@ -86,14 +83,12 @@ io.on('connection', (socket) => {
         lastVideoChange = new Date();
     });
 
-    socket.on('update_nickname', payload => {
-      for (let i = 0;i < users.length;i++) {
-        if (users[i].nickname === payload.old) {
-          users[i].nickname = payload.new;
-          socket.data.nickname = payload.new
-          updateState(io, socket, 'name_update');
-        } 
-      }
+    socket.on('update_nickname', async payload => {
+        await updateNickname(payload, socket).then(() => {
+            updateState(io, socket, 'name_update');
+        }).catch(err => {
+            console.log(err);
+        });
     });
 
     socket.on('sync', user => {
@@ -104,14 +99,6 @@ io.on('connection', (socket) => {
     socket.on('change_player_time', payload => {
         currentTime = payload.time;
         updateState(io, socket, 'change_player_time', {user: payload.user});
-    });
-
-    socket.on('move_up', video => {
-
-    });
-
-    socket.on('move_down', video => {
-
     });
 });
 
@@ -199,6 +186,23 @@ async function skipVideo() {
     });
 }
 
-async function moveVideo(video, direction) {
-    
+async function moveVideo(video, videos, isDown) {
+    const vidPos = util.findVideo(video, videos);
+    console.log(videos.splice(vidPos, 0));
+}
+
+function updateNickname(payload, socket) {
+    return new Promise((resolve, reject) => {
+        if (payload.new != '' && users.length > 0) {
+            for (let i = 0;i < users.length;i++) {
+               if (users[i].nickname === payload.old) {
+                    users[i].nickname = payload.new;
+                    socket.data.nickname = payload.new;
+               }
+            }
+            resolve();
+        } else {
+            reject('Username cannot be blank.');
+        }
+    });
 }

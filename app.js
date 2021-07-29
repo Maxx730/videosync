@@ -56,8 +56,12 @@ io.on('connection', (socket) => {
         });
     });
     
-    socket.on('move_video', payload => {
-        console.log(moveVideo(payload.video, videos, payload.video.direction == 'down'));
+    socket.on('move_video',async payload => {
+        await moveVideo(payload.video, videos, payload.video.direction == 'down').then(action => {
+            updateState(io, socket, action);
+        }).catch(err => {
+            console.log(err);
+        });
     });
 
     socket.on('remove_video', removed => {
@@ -178,7 +182,7 @@ async function skipVideo() {
             } else {
               currentVideo = null;
             }
-            
+
             resolve('skip_video');
         } else {
             reject('Video to be skipped is null.');
@@ -187,8 +191,12 @@ async function skipVideo() {
 }
 
 async function moveVideo(video, videos, isDown) {
-    const vidPos = util.findVideo(video, videos);
-    console.log(videos.splice(vidPos, 0));
+    return new Promise((resolve, reject) => {
+        const vidPos = util.findVideo(video, videos);
+        videos.splice(isDown ? vidPos + 1 : vidPos - 1, 0, videos.splice(vidPos, 1)[0]);
+        console.log(videos);
+        resolve(isDown ? 'video_down' : 'video_up');
+    });
 }
 
 function updateNickname(payload, socket) {

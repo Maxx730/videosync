@@ -21,7 +21,7 @@ let banner = 'Now With Chiken';
 let status = 'idle';
 let syncInterval = null;
 
-const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 1;
+const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3000;
 
 io.on('connection', (socket) => {
     console.log('--- Connection Established ----');
@@ -57,8 +57,7 @@ io.on('connection', (socket) => {
     });
     
     socket.on('move_video', payload => {
-        const vId = util.findVideo(payload.video, videos);
-        console.log(payload);
+        console.log(moveVideo(payload.video, videos, payload.video.direction == 'down'));
     });
 
     socket.on('remove_video', removed => {
@@ -73,34 +72,33 @@ io.on('connection', (socket) => {
     });
 
     socket.on('next_video',async payload => {
-        await skipVideo().then(action => {
-            updateState(io, socket, action, {user: payload.user});
+        const curDate = new Date();
+        if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
+            await skipVideo().then(action => {
+                updateState(io, socket, action, {user: payload.user});
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+        lastVideoChange = new Date();
+    });
+
+    socket.on('update_nickname', async payload => {
+        await updateNickname(payload, socket).then(() => {
+            updateState(io, socket, 'name_update');
         }).catch(err => {
             console.log(err);
         });
     });
 
-    socket.on('update_nickname', payload => {
-      for (let i = 0;i < users.length;i++) {
-        if (users[i].nickname === payload.old) {
-          users[i].nickname = payload.new;
-          socket.data.nickname = payload.new
-          updateState(io, socket, 'name_update');
-        } 
-      }
-    });
-
     socket.on('sync', user => {
       console.log('--- App Syncing ---');
-      updateState(io, socket, 'sync')
+      updateState(io, socket, 'sync');
     });
-
-    socket.on('move_up', video => {
-
-    });
-
-    socket.on('move_down', video => {
-
+    
+    socket.on('change_player_time', payload => {
+        currentTime = payload.time;
+        updateState(io, socket, 'change_player_time', {user: payload.user});
     });
 });
 
@@ -126,6 +124,7 @@ function updateState(io, socket, action, extra) {
     action: action,
     banner: banner,
     status: status,
+    currentTime: currentTime,
     extra: extra != null ? extra : {},
     lastUpdate: "Last Sync: " + date.getDate() + "/"
     + (date.getMonth()+1)  + "/" 
@@ -151,7 +150,8 @@ async function joinRoom(nickname, users) {
 
 async function addVideo(video) {
     return new Promise((resolve, reject) => {
-        if (video != null) {
+        const exists = util.videoExists(video, videos);
+        if (video != null && !exists) {
             if (currentVideo) {
                 videos.push(video);
                 resolve('add_video');
@@ -160,7 +160,9 @@ async function addVideo(video) {
                 resolve('start_video');
             }
         } else {
-            reject('Request video is null.');
+            if (exists) {
+                resolve('video_exists');
+            }
         }
     });
 }
@@ -184,6 +186,23 @@ async function skipVideo() {
     });
 }
 
-async function moveVideo(video, direction) {
-    
+async function moveVideo(video, videos, isDown) {
+    const vidPos = util.findVideo(video, videos);
+    console.log(videos.splice(vidPos, 0));
+}
+
+function updateNickname(payload, socket) {
+    return new Promise((resolve, reject) => {
+        if (payload.new != '' && users.length > 0) {
+            for (let i = 0;i < users.length;i++) {
+               if (users[i].nickname === payload.old) {
+                    users[i].nickname = payload.new;
+                    socket.data.nickname = payload.new;
+               }
+            }
+            resolve();
+        } else {
+            reject('Username cannot be blank.');
+        }
+    });
 }

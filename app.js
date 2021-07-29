@@ -21,7 +21,7 @@ let banner = 'Now With Chiken';
 let status = 'idle';
 let syncInterval = null;
 
-const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3000;
+const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3;
 
 io.on('connection', (socket) => {
     console.log('--- Connection Established ----');
@@ -77,6 +77,7 @@ io.on('connection', (socket) => {
 
     socket.on('next_video',async payload => {
         const curDate = new Date();
+        console.log(Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000));
         if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
             await skipVideo().then(action => {
                 updateState(io, socket, action, {user: payload.user});
@@ -194,7 +195,7 @@ async function moveVideo(video, videos, isDown) {
     return new Promise((resolve, reject) => {
         const vidPos = util.findVideo(video, videos);
         videos.splice(isDown ? vidPos + 1 : vidPos - 1, 0, videos.splice(vidPos, 1)[0]);
-        console.log(videos);
+
         resolve(isDown ? 'video_down' : 'video_up');
     });
 }

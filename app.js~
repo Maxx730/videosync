@@ -4,13 +4,7 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
-<<<<<<< HEAD
-  transports: ['websocket'],
-  pingInterval: 100,
-  pingTimeout: 300000
-=======
   transports: ['websocket']
->>>>>>> f5e0f9428d27dd78a4cfacc61b7135c4a46d45e3
 });
 const AUTOSTART_TIME = 1000;
 const util = require('./util.js');
@@ -27,7 +21,7 @@ let banner = 'Now With Chiken';
 let status = 'idle';
 let syncInterval = null;
 
-const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3;
+const NEXT_THRESHOLD = process.env.NEXT_THRESHOLD || 3000;
 
 io.on('connection', (socket) => {
     console.log('--- Connection Established ----');
@@ -62,12 +56,8 @@ io.on('connection', (socket) => {
         });
     });
     
-    socket.on('move_video',async payload => {
-        await moveVideo(payload.video, videos, payload.video.direction == 'down').then(action => {
-            updateState(io, socket, action);
-        }).catch(err => {
-            console.log(err);
-        });
+    socket.on('move_video', payload => {
+        console.log(moveVideo(payload.video, videos, payload.video.direction == 'down'));
     });
 
     socket.on('remove_video', removed => {
@@ -83,7 +73,6 @@ io.on('connection', (socket) => {
 
     socket.on('next_video',async payload => {
         const curDate = new Date();
-        console.log(Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000));
         if (Math.abs((lastVideoChange.getTime() - curDate.getTime()) / 1000) > NEXT_THRESHOLD) {
             await skipVideo().then(action => {
                 updateState(io, socket, action, {user: payload.user});
@@ -189,7 +178,7 @@ async function skipVideo() {
             } else {
               currentVideo = null;
             }
-
+            
             resolve('skip_video');
         } else {
             reject('Video to be skipped is null.');
@@ -198,12 +187,8 @@ async function skipVideo() {
 }
 
 async function moveVideo(video, videos, isDown) {
-    return new Promise((resolve, reject) => {
-        const vidPos = util.findVideo(video, videos);
-        videos.splice(isDown ? vidPos + 1 : vidPos - 1, 0, videos.splice(vidPos, 1)[0]);
-
-        resolve(isDown ? 'video_down' : 'video_up');
-    });
+    const vidPos = util.findVideo(video, videos);
+    console.log(videos.splice(vidPos, 0));
 }
 
 function updateNickname(payload, socket) {

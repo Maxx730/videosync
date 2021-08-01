@@ -5,7 +5,8 @@ const http = require('http');
 const server = http.createServer(app);
 const io = require("socket.io")(server, {
   transports: ['websocket'],
-  pingInterval: 100
+  pingInterval: 100,
+  pingTimeout: 300000
 });
 const AUTOSTART_TIME = 1000;
 
